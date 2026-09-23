@@ -1,0 +1,6 @@
+Algorithm,Precision,Recall,F1,ROC_AUC,Train_Time_sec,Inference_ms_per_record
+Logistic Regression,0.9252,0.6175,0.7407,0.8714,1.81,0.0003
+Random Forest,0.9662,0.6188,0.7544,0.962,2.73,0.009
+Isolation Forest,0.8197,0.799,0.8092,0.882,1.31,0.0126
+One-Class SVM,0.9076,0.6887,0.7831,0.8586,0.26,0.1213
+Neural Network (MLP),0.9725,0.6335,0.7672,0.9608,17.17,0.0814
