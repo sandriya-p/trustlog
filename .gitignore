@@ -219,3 +219,20 @@ __marimo__/
 # Project datasets and generated processed data
 data/raw/
 data/processed/
+
+# Node / Hardhat generated files
+node_modules/
+artifacts/
+cache/
+types/
+
+# Local AI/tool configuration
+.agents/
+.claude/
+
+# Hardhat local environment
+ignition/deployments/
+
+# Trained model artifacts
+results/*.joblib
+results/v2_role_models/

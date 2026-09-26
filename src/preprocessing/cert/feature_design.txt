@@ -1,0 +1,37 @@
+TrustLog v2 — CERT Employee-Day Feature Design
+
+Unit of analysis:
+One row represents one employee on one day.
+
+1. Login Behavior
+- login_count
+- login_hour
+- after_hours_login
+- session_duration
+- unique_login_pcs
+
+2. Device Behavior
+- device_connect_count
+- device_disconnect_count
+- after_hours_device_connect
+- unique_device_pcs
+
+3. Web/HTTP Behavior
+- http_event_count
+- after_hours_http
+- unique_urls
+- unique_http_pcs
+
+4. Employee Context
+- employee_role
+- employee_active_status
+
+5. Behavioral Deviation Features
+- deviation_from_normal_login_time
+- unusual_pc_usage
+- unusual_device_activity
+- unusual_web_activity
+
+6. Model Outputs
+- anomaly_score
+- risk_score
