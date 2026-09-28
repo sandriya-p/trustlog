@@ -204,6 +204,7 @@ with st.sidebar:
             "MITRE ATT&CK",
             "IPFS Evidence",
             "Blockchain",
+            "Data Explorer"
         ],
         label_visibility="collapsed",
     )
@@ -960,7 +961,103 @@ elif page == "Employee Investigation":
                 if employee
                 else "Employee investigation request failed."
             )
+# ============================================================
+# DATA EXPLORER
+# ============================================================
 
+elif page == "Data Explorer":
+
+    st.markdown(
+        '<div class="section-title">🔎 Data Explorer</div>',
+        unsafe_allow_html=True,
+    )
+
+    st.write(
+        "Explore employee-day detection records from the TrustLog dataset."
+    )
+
+    # Filters
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        explorer_user = st.text_input(
+            "Employee ID",
+            placeholder="e.g. AIB0797",
+        )
+
+    with col2:
+        explorer_role = st.text_input(
+            "Role",
+            placeholder="e.g. Engineer",
+        )
+
+    with col3:
+        explorer_limit = st.number_input(
+            "Rows to display",
+            min_value=10,
+            max_value=500,
+            value=100,
+            step=10,
+        )
+
+    params = {
+        "limit": int(explorer_limit),
+    }
+
+    if explorer_user.strip():
+        params["user"] = explorer_user.strip()
+
+    if explorer_role.strip():
+        params["role"] = explorer_role.strip()
+
+    try:
+
+        response = requests.get(
+            f"{API_BASE_URL}/api/data-explorer",
+            params=params,
+            timeout=10,
+        )
+
+        data = response.json()
+
+        if data.get("status") == "success":
+
+            records = data.get("records", [])
+
+            st.caption(
+                f"Showing {len(records)} employee-day records"
+            )
+
+            if records:
+
+                explorer_df = pd.DataFrame(records)
+
+                st.dataframe(
+                    explorer_df,
+                    width="stretch",
+                    hide_index=True,
+                )
+
+            else:
+
+                st.info(
+                    "No records found for the selected filters."
+                )
+
+        else:
+
+            st.error(
+                data.get(
+                    "message",
+                    "Unable to load Data Explorer data.",
+                )
+            )
+
+    except Exception as e:
+
+        st.error(
+            f"Unable to connect to the TrustLog API: {e}"
+        )
 # ============================================================
 # PAGE 4 - EXPLAINABLE AI
 # ============================================================

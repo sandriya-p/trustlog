@@ -8,13 +8,13 @@ export default defineConfig({
       default: {
   	version: "0.8.34",
   	settings: {
-  	  evmVersion: "shanghai",
+  	  evmVersion: "paris",
  	 },
 	},
       production: {
         version: "0.8.34",
         settings: {
-	  evmVersion: "shanghai",
+	  evmVersion: "paris",
           optimizer: {
             enabled: true,
             runs: 200,

@@ -9,3 +9,6 @@ streamlit
 matplotlib
 pytest
 joblib
+plotly==7.1.0
+requests==2.34.2
+web3==8.0.0

@@ -20,9 +20,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-DATA_FILE = Path("data/processed/v2/trustlog_v2_detection_dataset.csv")
-
+DATA_FILE = Path("data/processed/v2/test_risk_scores.csv")
 
 @app.get("/")
 def root():
@@ -254,6 +252,54 @@ def employee_details(user_id: str):
         "average_risk_score": average_risk,
         "maximum_risk_score": maximum_risk,
         "timeline": timeline.to_dict(
+            orient="records"
+        ),
+    }
+@app.get("/api/data-explorer")
+def data_explorer(
+    user: str | None = None,
+    role: str | None = None,
+    limit: int = 100,
+):
+    if not DATA_FILE.exists():
+        return {
+            "status": "error",
+            "message": "TrustLog detection dataset not found",
+        }
+
+    df = pd.read_csv(DATA_FILE)
+
+    if user and "user" in df.columns:
+        df = df[
+            df["user"].astype(str).str.lower()
+            == user.lower()
+        ]
+
+    if role and "Role" in df.columns:
+        df = df[
+            df["Role"].astype(str).str.lower()
+            == role.lower()
+        ]
+
+    if "date_only" in df.columns:
+        df = df.sort_values(
+            "date_only",
+            ascending=False,
+        )
+
+    limit = max(1, min(limit, 500))
+
+    records = df.head(limit).copy()
+
+    records = records.where(
+        pd.notnull(records),
+        None,
+    )
+
+    return {
+        "status": "success",
+        "count": len(records),
+        "records": records.to_dict(
             orient="records"
         ),
     }

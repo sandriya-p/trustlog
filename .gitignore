@@ -236,3 +236,7 @@ ignition/deployments/
 # Trained model artifacts
 results/*.joblib
 results/v2_role_models/
+
+# Local evidence and IPFS test artifacts
+results/evidence/
+ipfs_test.json
