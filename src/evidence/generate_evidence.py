@@ -32,7 +32,7 @@ def main():
             "unique_urls": int(alert["unique_urls"]),
         },
         "integrity": {
-            "synthetic": False
+            "synthetic": True
         }
     }
 
