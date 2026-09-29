@@ -3,7 +3,11 @@ import { network } from "hardhat";
 async function main() {
   const { ethers } = await network.connect();
 
-  const contractAddress = "0x6993D79625EC77BC3d81807d957A336D9B9f6eEC";
+  const contractAddress = process.env.TRUSTLOG_CONTRACT_ADDRESS;
+
+  if (!contractAddress) {
+    throw new Error("Please set TRUSTLOG_CONTRACT_ADDRESS first.");
+  }
 
   const contract = await ethers.getContractAt(
     "TrustLogRegistry",

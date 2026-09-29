@@ -3,7 +3,11 @@ import { network } from "hardhat";
 async function main() {
   const { ethers } = await network.connect();
 
-  const contractAddress = "0x6993D79625EC77BC3d81807d957A336D9B9f6eEC";
+  const contractAddress = process.env.TRUSTLOG_CONTRACT_ADDRESS;
+
+  if (!contractAddress) {
+    throw new Error("Please set TRUSTLOG_CONTRACT_ADDRESS first.");
+  }
 
   const contract = await ethers.getContractAt(
     "TrustLogRegistry",
@@ -13,10 +17,10 @@ async function main() {
   const evidenceId = "TRUSTLOG-HIGH-RISK-001";
 
   const sha256Hash =
-    "c98d94b7550413f592835ab2c376c1646a0b56b8360a7723ef3247e94c196b0e";
+  "1882fae6c2ba99ec459c7d0ae613b986c641c8f2b4fb9ad1c8a49be0b7f16fc1";
 
   const ipfsCid =
-    "QmfFguXXn3sefUzkfJKcFBDEeLURo5NgbA2cjS3DpuzaVM";
+    "QmfJXJyPpK1AGiMy2jwvdt3dsomtpxSw79SUtizfzYYR46";
 
   const riskScore = 100;
 
