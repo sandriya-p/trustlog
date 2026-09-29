@@ -4,7 +4,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit.components.v1 as components
-
+API_BASE_URL = "http://127.0.0.1:8000"
 
 # ============================================================
 # CONFIGURATION

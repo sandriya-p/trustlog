@@ -34,6 +34,7 @@ test = pd.read_csv(TEST_FILE)
 pred = pd.read_csv(PRED_FILE)
 
 pred["risk_score"] = np.nan
+pred["risk_level"] = np.nan
 
 roles = train["Role"].dropna().unique()
 
@@ -68,7 +69,20 @@ for role in roles:
     ])
 
     pred.loc[test_mask, "risk_score"] = np.round(risk, 2)
+def get_risk_level(score):
+    if pd.isna(score):
+        return "Unknown"
+    elif score >= 80:
+        return "Critical"
+    elif score >= 60:
+        return "High"
+    elif score >= 40:
+        return "Medium"
+    else:
+        return "Low"
 
+
+pred["risk_level"] = pred["risk_score"].apply(get_risk_level)
 pred.to_csv(OUTPUT_FILE, index=False)
 
 print("Risk scoring completed.")
