@@ -208,11 +208,11 @@ with st.sidebar:
         ],
         label_visibility="collapsed",
     )
-    
-    if st.session_state.get("last_page") != page:
-    	st.session_state["last_page"] = page
 
-    	components.html(
+    if st.session_state.get("last_page") != page:
+        st.session_state["last_page"] = page
+
+        components.html(
             """
             <script>
                 window.parent.scrollTo(0, 0);
@@ -630,7 +630,7 @@ elif page == "Risk Monitoring":
     )
 
     st.caption(
-        "Filter model-detected anomalous employee-days."
+        "Explore AI-detected anomalies or all risk-scored employee-days."
     )
 
     roles = [
@@ -640,7 +640,7 @@ elif page == "Risk Monitoring":
         [],
     )
 
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4 = st.columns(4)
 
     with col1:
 
@@ -672,9 +672,20 @@ elif page == "Risk Monitoring":
             step=5,
         )
 
+    with col4:
+        record_type = st.selectbox(
+            "Record Type",
+            [
+                "AI-detected anomalies",
+                "All risk-scored records",
+            ],
+        )
+
     endpoint = "/api/anomalies?"
 
-    params = []
+    params = [
+        f"anomalies_only={str(record_type == 'AI-detected anomalies').lower()}"
+    ]
 
     if selected_risk != "All":
         params.append(
@@ -707,17 +718,17 @@ elif page == "Risk Monitoring":
 
             display_columns = [
                 "user",
-    		"Role",
-   		"date_only",
-   	 	"risk_score",
-    		"risk_level",
-    		"role_anomaly_score",
-   	 	"explanation_count",
-    		"login_hour",
-    		"http_event_count",
-    		"after_hours_http",
-    		"device_connect_count",            
-	   ]
+            "Role",
+           "date_only",
+            "risk_score",
+            "risk_level",
+            "role_anomaly_score",
+            "explanation_count",
+            "login_hour",
+            "http_event_count",
+            "after_hours_http",
+            "device_connect_count",
+       ]
 
             available = [
                 column
@@ -992,12 +1003,10 @@ elif page == "Data Explorer":
         )
 
     with col3:
-        explorer_limit = st.number_input(
+        explorer_limit = st.select_slider(
             "Rows to display",
-            min_value=10,
-            max_value=500,
+            options=[100, 250, 500, 1000, 2000],
             value=100,
-            step=10,
         )
 
     params = {
@@ -1023,9 +1032,10 @@ elif page == "Data Explorer":
         if data.get("status") == "success":
 
             records = data.get("records", [])
+            total_records = data.get("total", len(records))
 
             st.caption(
-                f"Showing {len(records)} employee-day records"
+                f"Showing {len(records):,} of {total_records:,} matching employee-day records"
             )
 
             if records:

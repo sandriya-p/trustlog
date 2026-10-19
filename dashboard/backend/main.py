@@ -111,6 +111,7 @@ def anomalies(
     risk_level: str | None = None,
     role: str | None = None,
     limit: int = 100,
+    anomalies_only: bool = True,
 ):
     if not DATA_FILE.exists():
         return {
@@ -120,7 +121,7 @@ def anomalies(
 
     df = pd.read_csv(DATA_FILE)
 
-    if "role_anomaly_score" in df.columns:
+    if anomalies_only and "role_anomaly_score" in df.columns:
         df = df[df["role_anomaly_score"] < 0]
 
     if risk_level and "risk_level" in df.columns:
@@ -287,7 +288,9 @@ def data_explorer(
             ascending=False,
         )
 
-    limit = max(1, min(limit, 500))
+    total = len(df)
+
+    limit = max(1, min(limit, 2000))
 
     records = df.head(limit).copy()
 
@@ -299,6 +302,7 @@ def data_explorer(
     return {
         "status": "success",
         "count": len(records),
+        "total": total,
         "records": records.to_dict(
             orient="records"
         ),
