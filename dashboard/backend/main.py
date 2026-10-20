@@ -39,6 +39,122 @@ def health():
         "service": "TrustLog API",
     }
 
+@app.get("/api/blockchain/evidence/{evidence_id}")
+def get_blockchain_evidence(evidence_id: str):
+    import json
+    from web3 import Web3
+
+    contract_address = "0xD8c1fAb61C9f23E0D9bA960F6F9C9Ba2fFFe4A52"
+    rpc_url = "http://127.0.0.1:8545"
+    abi_path = Path("artifacts/contracts/TrustLogRegistry.sol/TrustLogRegistry.json")
+
+    if not abi_path.exists():
+        return {"status": "error", "message": "Contract ABI file not found"}
+
+    w3 = Web3(Web3.HTTPProvider(rpc_url))
+
+    if not w3.is_connected():
+        return {"status": "error", "message": "Ganache is not reachable"}
+
+    try:
+        with abi_path.open("r", encoding="utf-8") as f:
+            abi = json.load(f)["abi"]
+
+        contract = w3.eth.contract(
+            address=Web3.to_checksum_address(contract_address),
+            abi=abi,
+        )
+
+        record = contract.functions.getEvidence(evidence_id).call()
+
+        return {
+            "status": "success",
+            "evidence_id": record[0],
+            "sha256_hash": record[1],
+            "ipfs_cid": record[2],
+            "risk_score": record[3],
+            "timestamp": record[4],
+            "recorder": record[5],
+            "contract_address": contract_address,
+            "chain_id": w3.eth.chain_id,
+        }
+
+    except Exception as exc:
+        return {
+            "status": "error",
+            "message": str(exc),
+        }
+
+
+@app.get("/api/ipfs/verify")
+def verify_ipfs_evidence(
+    cid: str = "QmfJXJyPpK1AGiMy2jwvdt3dsomtpxSw79SUtizfzYYR46",
+    expected_sha256: str = (
+        "1882fae6c2ba99ec459c7d0ae613b986"
+        "c641c8f2b4fb9ad1c8a49be0b7f16fc1"
+    ),
+):
+    import hashlib
+    import requests
+
+    ipfs_api = "http://127.0.0.1:5001"
+
+    try:
+        # Check that the IPFS API is reachable.
+        version_response = requests.post(
+            f"{ipfs_api}/api/v0/version",
+            timeout=5,
+        )
+        version_response.raise_for_status()
+        ipfs_version = version_response.json().get("Version", "unknown")
+
+        # Retrieve the evidence content through the local IPFS API.
+        file_response = requests.post(
+            f"{ipfs_api}/api/v0/cat",
+            params={"arg": cid},
+            timeout=15,
+        )
+        file_response.raise_for_status()
+
+        # Calculate SHA-256 over the exact retrieved bytes.
+        actual_sha256 = hashlib.sha256(file_response.content).hexdigest()
+        expected = expected_sha256.strip().lower()
+
+        if len(expected) != 64 or any(
+            char not in "0123456789abcdef" for char in expected
+        ):
+            return {
+                "status": "error",
+                "message": "Expected SHA-256 must contain 64 hexadecimal characters.",
+                "ipfs_reachable": True,
+                "ipfs_version": ipfs_version,
+            }
+
+        matched = actual_sha256 == expected
+
+        return {
+            "status": "verified" if matched else "mismatch",
+            "ipfs_reachable": True,
+            "ipfs_version": ipfs_version,
+            "cid": cid,
+            "expected_sha256": expected,
+            "actual_sha256": actual_sha256,
+            "hash_match": matched,
+            "bytes_retrieved": len(file_response.content),
+            "message": (
+                "SHA-256 matches the expected fingerprint."
+                if matched
+                else "SHA-256 does not match the expected fingerprint."
+            ),
+        }
+
+    except requests.RequestException as exc:
+        return {
+            "status": "unavailable",
+            "ipfs_reachable": False,
+            "message": f"IPFS verification could not complete: {exc}",
+        }
+
 
 @app.get("/api/overview")
 def overview():

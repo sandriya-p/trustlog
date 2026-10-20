@@ -240,3 +240,10 @@ results/v2_role_models/
 # Local evidence and IPFS test artifacts
 results/evidence/
 ipfs_test.json
+
+# Local Ganache blockchain data
+ganache-db/
+ganache-db-backup/
+
+# Local Ganache notes
+ganache-demo-notes.txt
